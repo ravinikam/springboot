@@ -1,0 +1,120 @@
+plugins {
+    id 'java'
+}
+
+group 'springboot.example'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+    classpath "io.spring.gradle:dependency-management-plugin:$springDependencyVersion"
+}
+
+project(":bootiful") {
+
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: "org.springframework.boot"
+    publishing.publications {
+        for (fileName in jsonfiles) {
+            def fileBase = fileName.getName().split("\\.")[0]
+
+            "$fileBase"(MavenPublication) {
+                groupId "com.ge.med.mr.parameter-specification"
+                version "$project.version"
+                artifact fileName
+                artifactId fileBase
+            }
+        }
+    }
+
+    artifactoryPublish {
+        for (fileName in jsonfiles) {
+            def fileBase = fileName.getName().split("\\.")[0]
+            publications(publishing.publications."$fileBase")
+        }
+    }
+
+
+    jar {
+        manifest {
+            attributes("Implementation-Title": "${rootProject.name}")
+            attributes("Implementation-Version": "${project.version}:${project.properties['scm.version']}")
+        }
+    }
+
+    bootJar {
+        classifier = "boot"
+        mainClassName = "com.ge.med.mr.geometry.GeometryApplication"
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:Greenwich.RELEASE"
+        }
+    }
+
+    dependencies {
+        compile project(":geometry-api")
+
+        compile("org.springframework.boot:spring-boot-starter-web")
+        compile("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+
+        runtime project(":geometry-impl")
+
+        runtime("io.springfox:springfox-swagger-ui:$springFoxVersion")
+        runtime("org.codehaus.janino:janino")
+        download("org.aspectj:aspectjweaver:$aspectjVersion")
+
+        testCompile project(":geometry-impl")
+        testCompile project(path: ":geometry-impl", configuration: "testOutput")
+
+        testCompile("info.cukes:cucumber-java8:$cucumberVersion")
+        testCompile("info.cukes:cucumber-junit:$cucumberVersion")
+        testCompile("info.cukes:cucumber-spring:$cucumberVersion")
+        testCompile("org.springframework.boot:spring-boot-starter-test")
+        testCompile("org.powermock:powermock-api-mockito2:$powerMockVersion")
+        testCompile("org.powermock:powermock-module-junit4:$powerMockVersion")
+    }
+
+    test.dependsOn downloadArtifact
+
+    test {
+        // merge coverage with impl
+        jacoco {
+            destinationFile = file("$rootDir/geometry-impl/build/jacoco/test.exec")
+        }
+    }
+}
+
+project(":benchmark") {
+    apply plugin: "com.github.johnrengelman.shadow"
+
+    Task bootJarTask = rootProject.allprojects
+            .find { it.pluginManager.hasPlugin("org.springframework.boot") }
+            .bootJar
+
+    dependencies {
+        implementation(
+                "org.openjdk.jmh:jmh-core:$jmhVersion",
+                "org.openjdk.jmh:jmh-generator-annprocess:$jmhVersion"
+        )
+        runtimeOnly(bootJarTask.outputs.files)
+    }
+    shadowJar {
+        entryCompression = org.gradle.api.tasks.bundling.ZipEntryCompression.STORED
+        manifest {
+            attributes(
+                    "Main-Class": "org.openjdk.jmh.Main",
+                    "Spring-Boot-Classes": "BOOT-INF/classes/",
+                    "Spring-Boot-Lib": "BOOT-INF/lib/",
+                    "Start-Class": bootJarTask.mainClassName
+            )
+        }
+    }
+}
