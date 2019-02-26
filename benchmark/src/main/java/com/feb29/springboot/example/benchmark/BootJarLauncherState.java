@@ -17,7 +17,7 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 
 @State(Scope.Benchmark)
-public class JarLauncherState
+public class BootJarLauncherState
 {
     private static final String MAIN_CLASS = "org.springframework.boot.loader.JarLauncher";
     private static final String APP_STARTED_PATTERN =
@@ -34,7 +34,10 @@ public class JarLauncherState
     {
         if (!isStarted())
         {
-            ProcessBuilder pb = new ProcessBuilder(getCommand());
+            final String[] command = getCommand();
+            ProcessBuilder pb = new ProcessBuilder(command);
+            System.out.println("***** Running Command *****");
+            System.out.println(Arrays.asList(command));
             try
             {
                 started = pb
@@ -93,7 +96,7 @@ public class JarLauncherState
         }
     }
 
-    protected String[] getCommand()
+    private String[] getCommand()
     {
         RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
         List<String> jvmArgs = runtimeMxBean.getInputArguments();
@@ -102,10 +105,8 @@ public class JarLauncherState
                 Arrays.asList("java", "-cp", runtimeMxBean.getClassPath(), MAIN_CLASS, "--server.port=0"));
         args.addAll(1, jvmArgs);
 
-        System.out.printf("*** Command ***\n%s\n", args);
         return args.toArray(new String[] {});
     }
-
 
     @TearDown(Level.Invocation)
     public void tearDown()
