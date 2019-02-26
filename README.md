@@ -1,4 +1,4 @@
-# Benchmark Demo Application
+# Benchmark Application
 
 Simple spring Boot demo application to benchmark spring boot services startup time. 
 It uses JMH benchmarking tool similar to [this](https://github.com/dsyer/spring-boot-startup-bench) project.

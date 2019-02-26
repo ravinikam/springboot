@@ -1,4 +1,4 @@
-package com.springboot.example.benchmark;
+package com.feb29.springboot.example.benchmark;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Level;

@@ -1,4 +1,4 @@
-package com.springboot.example.bootiful;
+package com.feb29.springboot.example.bootiful;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
