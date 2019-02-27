@@ -1,0 +1,6 @@
+rootProject.name = 'spring-boot-bench'
+include("benchmark")
+include("bootiful")
+
+
+
