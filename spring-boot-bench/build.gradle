@@ -2,7 +2,7 @@ buildscript {
     ext {
         springBootVersion = "2.1.+"
         springDependencyVersion = "1.0.6.RELEASE"
-        shadowPluginVersion = "2.0.4"
+        shadowPluginVersion = "4.0.2"
         jmhVersion = "1.21"
     }
 
@@ -60,7 +60,7 @@ project(":benchmark") {
         runtime bootJarTask.outputs.files
     }
     shadowJar {
-        entryCompression = org.gradle.api.tasks.bundling.ZipEntryCompression.STORED
+        entryCompression = ZipEntryCompression.STORED
         manifest {
             attributes(
                     "Main-Class": "org.openjdk.jmh.Main",
@@ -70,4 +70,5 @@ project(":benchmark") {
             )
         }
     }
+    build.dependsOn(shadowJar)
 }
