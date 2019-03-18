@@ -4,7 +4,7 @@ Simple spring Boot demo application to benchmark spring boot services startup ti
 It uses JMH benchmarking tool similar to [this](https://github.com/dsyer/spring-boot-startup-bench) project.
 
 ### How to Build
-    - Run ./gradlew clean shadowJar
+    - Run ./gradlew clean build
     
 ### How to Run
     - Run java -jar benchmark/build/libs/benchmark-0.1.0-SNAPSHOT-all.jar -bm avgt -f 2 -foe true -i 2 -wi 1   
